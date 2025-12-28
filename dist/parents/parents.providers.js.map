@@ -1,0 +1,1 @@
+{"version":3,"file":"parents.providers.js","sourceRoot":"","sources":["../../src/parents/parents.providers.ts"],"names":[],"mappings":";;;AAAA,6DAAmD;AACnD,yDAA+C;AAElC,QAAA,gBAAgB,GAAG;IAC9B;QACE,OAAO,EAAE,mBAAmB;QAC5B,QAAQ,EAAE,sBAAM;KACjB;IACD;QACE,OAAO,EAAE,iBAAiB;QAC1B,QAAQ,EAAE,kBAAI;KACf;CACF,CAAC"}
