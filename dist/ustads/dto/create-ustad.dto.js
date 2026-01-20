@@ -16,15 +16,18 @@ class CreateUstadDto {
 exports.CreateUstadDto = CreateUstadDto;
 __decorate([
     (0, class_validator_1.IsString)(),
+    (0, class_validator_1.ValidateIf)((o) => !o.userId),
     __metadata("design:type", String)
 ], CreateUstadDto.prototype, "name", void 0);
 __decorate([
     (0, class_validator_1.IsEmail)(),
+    (0, class_validator_1.ValidateIf)((o) => !o.userId),
     __metadata("design:type", String)
 ], CreateUstadDto.prototype, "email", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.MinLength)(8, { message: 'Password must be at least 8 characters long' }),
+    (0, class_validator_1.ValidateIf)((o) => !o.userId),
     __metadata("design:type", String)
 ], CreateUstadDto.prototype, "password", void 0);
 __decorate([
@@ -50,4 +53,9 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Array)
 ], CreateUstadDto.prototype, "assignedClasses", void 0);
+__decorate([
+    (0, class_validator_1.IsUUID)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], CreateUstadDto.prototype, "userId", void 0);
 //# sourceMappingURL=create-ustad.dto.js.map

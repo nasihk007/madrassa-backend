@@ -19,12 +19,15 @@ const student_entity_1 = require("../entities/student.entity");
 const ustad_entity_1 = require("../entities/ustad.entity");
 const academic_year_entity_1 = require("../entities/academic-year.entity");
 const dto_1 = require("../shared/dto");
+const user_entity_1 = require("../entities/user.entity");
+const ustads_service_1 = require("../ustads/ustads.service");
 let ResultsService = class ResultsService {
-    constructor(examResultRepository, ustadRepository) {
+    constructor(examResultRepository, ustadRepository, ustadsService) {
         this.examResultRepository = examResultRepository;
         this.ustadRepository = ustadRepository;
+        this.ustadsService = ustadsService;
     }
-    async findAll(pageOptionsDto) {
+    async findAll(pageOptionsDto, userId, userRole) {
         const whereClause = {};
         if (pageOptionsDto.query) {
             whereClause[sequelize_1.Op.or] = [
@@ -38,9 +41,31 @@ let ResultsService = class ResultsService {
         if (pageOptionsDto.academicYearId) {
             whereClause.academicYearId = pageOptionsDto.academicYearId;
         }
+        let studentInclude = {
+            model: student_entity_1.Student,
+        };
+        if (userRole === user_entity_1.UserRole.USTAD && userId) {
+            const assignedClassIds = await this.ustadsService.getAssignedClassIds(userId);
+            if (assignedClassIds.length > 0) {
+                studentInclude.where = {
+                    classDivisionId: { [sequelize_1.Op.in]: assignedClassIds },
+                };
+                studentInclude.required = true;
+            }
+            else {
+                studentInclude.where = {
+                    classDivisionId: { [sequelize_1.Op.in]: [] },
+                };
+                studentInclude.required = true;
+            }
+        }
         const { rows, count } = await this.examResultRepository.findAndCountAll({
             where: whereClause,
-            include: [student_entity_1.Student, { model: ustad_entity_1.Ustad, as: 'markedBy' }, academic_year_entity_1.AcademicYear],
+            include: [
+                studentInclude,
+                { model: ustad_entity_1.Ustad, as: 'markedBy' },
+                academic_year_entity_1.AcademicYear
+            ],
             limit: pageOptionsDto.takeOrLimit,
             offset: pageOptionsDto.skip,
             order: [['examDate', pageOptionsDto.order]],
@@ -70,9 +95,7 @@ let ResultsService = class ResultsService {
     async create(createResultDto) {
         let markedById = createResultDto.markedById;
         if (createResultDto.markedByUserId && !markedById) {
-            const ustad = await this.ustadRepository.findOne({
-                where: { userId: createResultDto.markedByUserId }
-            });
+            const ustad = await this.ustadsService.getUstadByUserId(createResultDto.markedByUserId);
             if (ustad) {
                 markedById = ustad.id;
             }
@@ -81,8 +104,8 @@ let ResultsService = class ResultsService {
             ...createResultDto,
             examDate: new Date(createResultDto.examDate),
             markedById,
-            markedByUserId: undefined,
         };
+        delete resultData.markedByUserId;
         const cleanResultData = Object.fromEntries(Object.entries(resultData).filter(([_, value]) => value !== undefined));
         const result = await this.examResultRepository.create(cleanResultData);
         return result;
@@ -92,6 +115,12 @@ let ResultsService = class ResultsService {
         const updateData = { ...updateResultDto };
         if (updateResultDto.examDate) {
             updateData.examDate = new Date(updateResultDto.examDate);
+        }
+        if (updateResultDto.markedByUserId && !updateResultDto.markedById) {
+            const ustad = await this.ustadsService.getUstadByUserId(updateResultDto.markedByUserId);
+            if (ustad) {
+                updateData.markedById = ustad.id;
+            }
         }
         delete updateData.markedByUserId;
         await result.update(updateData);
@@ -107,6 +136,6 @@ exports.ResultsService = ResultsService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, common_1.Inject)('EXAM_RESULT_REPOSITORY')),
     __param(1, (0, common_1.Inject)('USTAD_REPOSITORY')),
-    __metadata("design:paramtypes", [Object, Object])
+    __metadata("design:paramtypes", [Object, Object, ustads_service_1.UstadsService])
 ], ResultsService);
 //# sourceMappingURL=results.service.js.map

@@ -32,8 +32,8 @@ let AttendanceController = class AttendanceController {
         const result = await this.attendanceService.findByDate(date);
         return new common_data_response_dto_1.CommonDataResponseDto(result, true, 'Attendance records by date retrieved successfully');
     }
-    async findByStudent(studentId) {
-        const result = await this.attendanceService.findByStudent(studentId);
+    async findByStudent(studentId, pageOptionsDto) {
+        const result = await this.attendanceService.findByStudent(studentId, pageOptionsDto);
         return new common_data_response_dto_1.CommonDataResponseDto(result, true, 'Student attendance records retrieved successfully');
     }
     async findOne(id) {
@@ -74,8 +74,9 @@ __decorate([
 __decorate([
     (0, common_1.Get)('student/:studentId'),
     __param(0, (0, common_1.Param)('studentId')),
+    __param(1, (0, common_1.Query)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, page_options_dto_1.PageOptionsDto]),
     __metadata("design:returntype", Promise)
 ], AttendanceController.prototype, "findByStudent", null);
 __decorate([

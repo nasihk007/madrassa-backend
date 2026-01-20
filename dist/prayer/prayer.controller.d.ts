@@ -7,7 +7,7 @@ export declare class PrayerController {
     private readonly prayerService;
     constructor(prayerService: PrayerService);
     findAll(pageOptionsDto: PageOptionsDto, req: any): Promise<CommonDataResponseDto>;
-    findByStudent(studentId: string): Promise<CommonDataResponseDto>;
+    findByStudent(studentId: string, pageOptionsDto: PageOptionsDto): Promise<CommonDataResponseDto>;
     findOne(id: string): Promise<CommonDataResponseDto>;
     create(createPrayerDto: CreatePrayerDto): Promise<CommonDataResponseDto>;
     update(id: string, updatePrayerDto: UpdatePrayerDto): Promise<CommonDataResponseDto>;

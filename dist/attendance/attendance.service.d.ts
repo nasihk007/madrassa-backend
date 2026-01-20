@@ -15,7 +15,7 @@ export declare class AttendanceService {
     constructor(attendanceRepository: typeof Attendance, studentRepository: typeof Student, ustadRepository: typeof Ustad, academicYearRepository: typeof AcademicYear, ustadsService: UstadsService);
     findAll(pageOptionsDto: PageOptionsDto, userId?: string, userRole?: string): Promise<CommonDataResponseDto>;
     findOne(id: string): Promise<Attendance>;
-    findByStudent(studentId: string): Promise<Attendance[]>;
+    findByStudent(studentId: string, pageOptionsDto?: PageOptionsDto): Promise<Attendance[]>;
     findByDate(date: string): Promise<Attendance[]>;
     create(createAttendanceDto: CreateAttendanceDto): Promise<Attendance>;
     update(id: string, updateAttendanceDto: UpdateAttendanceDto): Promise<Attendance>;

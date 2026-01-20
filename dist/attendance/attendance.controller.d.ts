@@ -8,7 +8,7 @@ export declare class AttendanceController {
     constructor(attendanceService: AttendanceService);
     findAll(pageOptionsDto: PageOptionsDto, req: any): Promise<CommonDataResponseDto>;
     findByDate(date: string): Promise<CommonDataResponseDto>;
-    findByStudent(studentId: string): Promise<CommonDataResponseDto>;
+    findByStudent(studentId: string, pageOptionsDto: PageOptionsDto): Promise<CommonDataResponseDto>;
     findOne(id: string): Promise<CommonDataResponseDto>;
     create(createAttendanceDto: CreateAttendanceDto): Promise<CommonDataResponseDto>;
     update(id: string, updateAttendanceDto: UpdateAttendanceDto): Promise<CommonDataResponseDto>;

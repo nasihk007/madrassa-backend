@@ -6,7 +6,7 @@ import { UpdateExamResultDto } from './dto/update-exam-result.dto';
 export declare class ResultsController {
     private readonly resultsService;
     constructor(resultsService: ResultsService);
-    findAll(pageOptionsDto: PageOptionsDto): Promise<CommonDataResponseDto>;
+    findAll(pageOptionsDto: PageOptionsDto, req: any): Promise<CommonDataResponseDto>;
     findByStudent(studentId: string): Promise<CommonDataResponseDto>;
     findOne(id: string): Promise<CommonDataResponseDto>;
     create(createResultDto: CreateExamResultDto): Promise<CommonDataResponseDto>;

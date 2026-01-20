@@ -1,15 +1,18 @@
-import { IsString, IsEmail, IsOptional, IsDateString, IsArray, MinLength } from 'class-validator';
+import { IsString, IsEmail, IsOptional, IsDateString, IsArray, MinLength, IsUUID, ValidateIf } from 'class-validator';
 
 export class CreateUstadDto {
   @IsString()
-  name: string;
+  @ValidateIf((o) => !o.userId)
+  name?: string;
 
   @IsEmail()
-  email: string;
+  @ValidateIf((o) => !o.userId)
+  email?: string;
 
   @IsString()
   @MinLength(8, { message: 'Password must be at least 8 characters long' })
-  password: string;
+  @ValidateIf((o) => !o.userId)
+  password?: string;
 
   @IsString()
   @IsOptional()
@@ -28,5 +31,9 @@ export class CreateUstadDto {
   @IsString({ each: true })
   @IsOptional()
   assignedClasses?: string[];
+
+  @IsUUID()
+  @IsOptional()
+  userId?: string;
 }
 

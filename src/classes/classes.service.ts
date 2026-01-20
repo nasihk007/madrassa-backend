@@ -18,7 +18,7 @@ export class ClassesService {
     private ustadsService: UstadsService,
   ) {}
 
-  async findAll(pageOptionsDto: PageOptionsDto, userId?: string, userRole?: string): Promise<CommonDataResponseDto> {
+  async findAll(pageOptionsDto: PageOptionsDto, userId?: string, userRole?: string, filterByAssigned: boolean = false): Promise<CommonDataResponseDto> {
     const whereClause: any = {};
 
     if (pageOptionsDto.query) {
@@ -28,16 +28,19 @@ export class ClassesService {
       ];
     }
 
-    // Filter by ustad's assigned classes if user is an ustad
-    if (userRole === UserRole.USTAD && userId) {
+    // Filter by assigned classes if:
+    // 1. User is an ustad (always filter)
+    // 2. User is an admin AND filterByAssigned is true (for my-classes endpoint)
+    if (userId && (userRole === UserRole.USTAD || (userRole === UserRole.ADMIN && filterByAssigned))) {
       const assignedClassIds = await this.ustadsService.getAssignedClassIds(userId);
       if (assignedClassIds.length > 0) {
         whereClause.id = { [Op.in]: assignedClassIds };
       } else {
-        // If ustad has no assigned classes, return empty result
+        // If user has no assigned classes, return empty result
         whereClause.id = { [Op.in]: [] };
       }
     }
+    // Admin users without filterByAssigned flag: no filtering - show all classes
 
     const { rows, count } = await this.classDivisionRepository.findAndCountAll({
       where: whereClause,

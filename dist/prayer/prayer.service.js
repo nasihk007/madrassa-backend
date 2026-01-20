@@ -35,7 +35,21 @@ let PrayerService = class PrayerService {
                 { status: { [sequelize_1.Op.like]: `%${pageOptionsDto.query}%` } },
             ];
         }
-        if (pageOptionsDto.date) {
+        if (pageOptionsDto.startDate || pageOptionsDto.endDate) {
+            const dateRange = {};
+            if (pageOptionsDto.startDate) {
+                const startDate = new Date(pageOptionsDto.startDate);
+                startDate.setHours(0, 0, 0, 0);
+                dateRange[sequelize_1.Op.gte] = startDate;
+            }
+            if (pageOptionsDto.endDate) {
+                const endDate = new Date(pageOptionsDto.endDate);
+                endDate.setHours(23, 59, 59, 999);
+                dateRange[sequelize_1.Op.lte] = endDate;
+            }
+            whereClause.date = dateRange;
+        }
+        else if (pageOptionsDto.date) {
             whereClause.date = new Date(pageOptionsDto.date);
         }
         if (pageOptionsDto.studentId) {
@@ -89,18 +103,36 @@ let PrayerService = class PrayerService {
         }
         return prayer;
     }
-    async findByStudent(studentId) {
+    async findByStudent(studentId, pageOptionsDto) {
+        const whereClause = { studentId };
+        if (pageOptionsDto?.startDate || pageOptionsDto?.endDate) {
+            const dateRange = {};
+            if (pageOptionsDto.startDate) {
+                const startDate = new Date(pageOptionsDto.startDate);
+                startDate.setHours(0, 0, 0, 0);
+                dateRange[sequelize_1.Op.gte] = startDate;
+            }
+            if (pageOptionsDto.endDate) {
+                const endDate = new Date(pageOptionsDto.endDate);
+                endDate.setHours(23, 59, 59, 999);
+                dateRange[sequelize_1.Op.lte] = endDate;
+            }
+            whereClause.date = dateRange;
+        }
+        else if (pageOptionsDto?.date) {
+            whereClause.date = new Date(pageOptionsDto.date);
+        }
         return this.prayerRepository.findAll({
-            where: { studentId },
+            where: whereClause,
             include: [student_entity_1.Student, { model: ustad_entity_1.Ustad, as: 'markedBy' }, academic_year_entity_1.AcademicYear],
+            order: pageOptionsDto?.order ? [['date', pageOptionsDto.order]] : [['date', 'DESC']],
+            limit: pageOptionsDto?.takeOrLimit,
         });
     }
     async create(createPrayerDto) {
         let markedById = createPrayerDto.markedById;
         if (createPrayerDto.markedByUserId && !markedById) {
-            const ustad = await this.ustadRepository.findOne({
-                where: { userId: createPrayerDto.markedByUserId }
-            });
+            const ustad = await this.ustadsService.getUstadByUserId(createPrayerDto.markedByUserId);
             if (ustad) {
                 markedById = ustad.id;
             }
@@ -109,8 +141,8 @@ let PrayerService = class PrayerService {
             ...createPrayerDto,
             date: new Date(createPrayerDto.date),
             markedById,
-            markedByUserId: undefined,
         };
+        delete prayerData.markedByUserId;
         const cleanPrayerData = Object.fromEntries(Object.entries(prayerData).filter(([_, value]) => value !== undefined));
         const prayer = await this.prayerRepository.create(cleanPrayerData);
         return prayer;
@@ -120,6 +152,12 @@ let PrayerService = class PrayerService {
         const updateData = { ...updatePrayerDto };
         if (updatePrayerDto.date) {
             updateData.date = new Date(updatePrayerDto.date);
+        }
+        if (updatePrayerDto.markedByUserId && !updatePrayerDto.markedById) {
+            const ustad = await this.ustadsService.getUstadByUserId(updatePrayerDto.markedByUserId);
+            if (ustad) {
+                updateData.markedById = ustad.id;
+            }
         }
         delete updateData.markedByUserId;
         await prayer.update(updateData);

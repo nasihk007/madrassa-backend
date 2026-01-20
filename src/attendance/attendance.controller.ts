@@ -28,8 +28,8 @@ export class AttendanceController {
   }
 
   @Get('student/:studentId')
-  async findByStudent(@Param('studentId') studentId: string) {
-    const result = await this.attendanceService.findByStudent(studentId);
+  async findByStudent(@Param('studentId') studentId: string, @Query() pageOptionsDto: PageOptionsDto) {
+    const result = await this.attendanceService.findByStudent(studentId, pageOptionsDto);
     return new CommonDataResponseDto(result, true, 'Student attendance records retrieved successfully');
   }
 

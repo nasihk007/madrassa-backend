@@ -27,7 +27,7 @@ let ClassesService = class ClassesService {
         this.ustadRepository = ustadRepository;
         this.ustadsService = ustadsService;
     }
-    async findAll(pageOptionsDto, userId, userRole) {
+    async findAll(pageOptionsDto, userId, userRole, filterByAssigned = false) {
         const whereClause = {};
         if (pageOptionsDto.query) {
             whereClause[sequelize_1.Op.or] = [
@@ -35,7 +35,7 @@ let ClassesService = class ClassesService {
                 { division: { [sequelize_1.Op.like]: `%${pageOptionsDto.query}%` } },
             ];
         }
-        if (userRole === user_entity_1.UserRole.USTAD && userId) {
+        if (userId && (userRole === user_entity_1.UserRole.USTAD || (userRole === user_entity_1.UserRole.ADMIN && filterByAssigned))) {
             const assignedClassIds = await this.ustadsService.getAssignedClassIds(userId);
             if (assignedClassIds.length > 0) {
                 whereClause.id = { [sequelize_1.Op.in]: assignedClassIds };

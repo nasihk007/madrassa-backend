@@ -74,6 +74,16 @@ export class PageOptionsDto {
   @IsOptional()
   date?: string;
 
+  @ApiPropertyOptional({ type: String, description: 'Start date filter (YYYY-MM-DD) for date range filtering' })
+  @IsString()
+  @IsOptional()
+  startDate?: string;
+
+  @ApiPropertyOptional({ type: String, description: 'End date filter (YYYY-MM-DD) for date range filtering' })
+  @IsString()
+  @IsOptional()
+  endDate?: string;
+
   get skip(): number {
     return ((this.page ?? 1) - 1) * (this.limit ?? this.take ?? 10);
   }

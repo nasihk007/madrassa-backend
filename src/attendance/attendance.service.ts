@@ -33,7 +33,21 @@ export class AttendanceService {
       ];
     }
 
-    if (pageOptionsDto.date) {
+    // Date range filtering (startDate and endDate) takes priority over single date
+    if (pageOptionsDto.startDate || pageOptionsDto.endDate) {
+      const dateRange: any = {};
+      if (pageOptionsDto.startDate) {
+        const startDate = new Date(pageOptionsDto.startDate);
+        startDate.setHours(0, 0, 0, 0);
+        dateRange[Op.gte] = startDate;
+      }
+      if (pageOptionsDto.endDate) {
+        const endDate = new Date(pageOptionsDto.endDate);
+        endDate.setHours(23, 59, 59, 999);
+        dateRange[Op.lte] = endDate;
+      }
+      whereClause.date = dateRange;
+    } else if (pageOptionsDto.date) {
       whereClause.date = new Date(pageOptionsDto.date);
     }
 
@@ -46,6 +60,7 @@ export class AttendanceService {
     }
 
     // Filter by ustad's assigned classes if user is an ustad
+    // Admin users always see all attendance records (no filtering)
     let studentInclude: any = {
       model: Student,
     };
@@ -65,6 +80,7 @@ export class AttendanceService {
         studentInclude.required = true;
       }
     }
+    // Admin users: no filtering - show all attendance records
 
     const { rows, count } = await this.attendanceRepository.findAndCountAll({
       where: whereClause,
@@ -99,10 +115,32 @@ export class AttendanceService {
     return attendance;
   }
 
-  async findByStudent(studentId: string): Promise<Attendance[]> {
+  async findByStudent(studentId: string, pageOptionsDto?: PageOptionsDto): Promise<Attendance[]> {
+    const whereClause: any = { studentId };
+
+    // Date range filtering (startDate and endDate)
+    if (pageOptionsDto?.startDate || pageOptionsDto?.endDate) {
+      const dateRange: any = {};
+      if (pageOptionsDto.startDate) {
+        const startDate = new Date(pageOptionsDto.startDate);
+        startDate.setHours(0, 0, 0, 0);
+        dateRange[Op.gte] = startDate;
+      }
+      if (pageOptionsDto.endDate) {
+        const endDate = new Date(pageOptionsDto.endDate);
+        endDate.setHours(23, 59, 59, 999);
+        dateRange[Op.lte] = endDate;
+      }
+      whereClause.date = dateRange;
+    } else if (pageOptionsDto?.date) {
+      whereClause.date = new Date(pageOptionsDto.date);
+    }
+
     return this.attendanceRepository.findAll({
-      where: { studentId },
+      where: whereClause,
       include: [Student, { model: Ustad, as: 'markedBy' }, AcademicYear],
+      order: pageOptionsDto?.order ? [['date', pageOptionsDto.order]] : [['date', 'DESC']],
+      limit: pageOptionsDto?.takeOrLimit,
     });
   }
 
@@ -118,21 +156,20 @@ export class AttendanceService {
     
     // If markedByUserId is provided, find the corresponding ustad ID
     if (createAttendanceDto.markedByUserId && !markedById) {
-      const ustad = await this.ustadRepository.findOne({
-        where: { userId: createAttendanceDto.markedByUserId }
-      });
+      const ustad = await this.ustadsService.getUstadByUserId(createAttendanceDto.markedByUserId);
       if (ustad) {
         markedById = ustad.id;
       }
     }
 
-    const attendanceData = {
+    const attendanceData: any = {
       ...createAttendanceDto,
       date: new Date(createAttendanceDto.date),
       markedById,
-      // Remove markedByUserId from the data as it's not a field in the entity
-      markedByUserId: undefined,
     };
+    
+    // Remove markedByUserId from the data as it's not a field in the entity
+    delete attendanceData.markedByUserId;
     
     // Remove undefined values
     const cleanAttendanceData = Object.fromEntries(
@@ -149,6 +186,14 @@ export class AttendanceService {
     
     if (updateAttendanceDto.date) {
       updateData.date = new Date(updateAttendanceDto.date);
+    }
+    
+    // If markedByUserId is provided, find the corresponding ustad ID
+    if (updateAttendanceDto.markedByUserId && !updateAttendanceDto.markedById) {
+      const ustad = await this.ustadsService.getUstadByUserId(updateAttendanceDto.markedByUserId);
+      if (ustad) {
+        updateData.markedById = ustad.id;
+      }
     }
     
     // Remove markedByUserId from update data as it's not a field in the entity

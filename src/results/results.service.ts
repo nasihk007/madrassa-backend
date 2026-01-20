@@ -7,6 +7,8 @@ import { AcademicYear } from '../entities/academic-year.entity';
 import { PageOptionsDto, CommonDataResponseDto, PageMetaDto } from '../shared/dto';
 import { CreateExamResultDto } from './dto/create-exam-result.dto';
 import { UpdateExamResultDto } from './dto/update-exam-result.dto';
+import { UserRole } from '../entities/user.entity';
+import { UstadsService } from '../ustads/ustads.service';
 
 @Injectable()
 export class ResultsService {
@@ -15,9 +17,10 @@ export class ResultsService {
     private examResultRepository: typeof ExamResult,
     @Inject('USTAD_REPOSITORY')
     private ustadRepository: typeof Ustad,
+    private ustadsService: UstadsService,
   ) {}
 
-  async findAll(pageOptionsDto: PageOptionsDto): Promise<CommonDataResponseDto> {
+  async findAll(pageOptionsDto: PageOptionsDto, userId?: string, userRole?: string): Promise<CommonDataResponseDto> {
     const whereClause: any = {};
 
     if (pageOptionsDto.query) {
@@ -35,9 +38,36 @@ export class ResultsService {
       whereClause.academicYearId = pageOptionsDto.academicYearId;
     }
 
+    // Filter by ustad's assigned classes if user is an ustad
+    // Admin users always see all exam results (no filtering)
+    let studentInclude: any = {
+      model: Student,
+    };
+    
+    if (userRole === UserRole.USTAD && userId) {
+      const assignedClassIds = await this.ustadsService.getAssignedClassIds(userId);
+      if (assignedClassIds.length > 0) {
+        studentInclude.where = {
+          classDivisionId: { [Op.in]: assignedClassIds },
+        };
+        studentInclude.required = true;
+      } else {
+        // If ustad has no assigned classes, return empty result
+        studentInclude.where = {
+          classDivisionId: { [Op.in]: [] },
+        };
+        studentInclude.required = true;
+      }
+    }
+    // Admin users: no filtering - show all exam results
+
     const { rows, count } = await this.examResultRepository.findAndCountAll({
       where: whereClause,
-      include: [Student, { model: Ustad, as: 'markedBy' }, AcademicYear],
+      include: [
+        studentInclude,
+        { model: Ustad, as: 'markedBy' },
+        AcademicYear
+      ],
       limit: pageOptionsDto.takeOrLimit,
       offset: pageOptionsDto.skip,
       order: [['examDate', pageOptionsDto.order]],
@@ -76,21 +106,20 @@ export class ResultsService {
     
     // If markedByUserId is provided, find the corresponding ustad ID
     if (createResultDto.markedByUserId && !markedById) {
-      const ustad = await this.ustadRepository.findOne({
-        where: { userId: createResultDto.markedByUserId }
-      });
+      const ustad = await this.ustadsService.getUstadByUserId(createResultDto.markedByUserId);
       if (ustad) {
         markedById = ustad.id;
       }
     }
 
-    const resultData = {
+    const resultData: any = {
       ...createResultDto,
       examDate: new Date(createResultDto.examDate),
       markedById,
-      // Remove markedByUserId from the data as it's not a field in the entity
-      markedByUserId: undefined,
     };
+    
+    // Remove markedByUserId from the data as it's not a field in the entity
+    delete resultData.markedByUserId;
     
     // Remove undefined values
     const cleanResultData = Object.fromEntries(
@@ -107,6 +136,14 @@ export class ResultsService {
     
     if (updateResultDto.examDate) {
       updateData.examDate = new Date(updateResultDto.examDate);
+    }
+    
+    // If markedByUserId is provided, find the corresponding ustad ID
+    if (updateResultDto.markedByUserId && !updateResultDto.markedById) {
+      const ustad = await this.ustadsService.getUstadByUserId(updateResultDto.markedByUserId);
+      if (ustad) {
+        updateData.markedById = ustad.id;
+      }
     }
     
     // Remove markedByUserId from update data as it's not a field in the entity

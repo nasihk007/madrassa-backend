@@ -57,6 +57,8 @@ export class StudentsService {
     }
 
     // Filter by ustad's assigned classes if user is an ustad
+    // Note: Admin users always see all students (no filtering) for Students module and Student Analytics
+    // Only ustads are filtered by their assigned classes
     if (userRole === UserRole.USTAD && userId) {
       const assignedClassIds = await this.ustadsService.getAssignedClassIds(userId);
       if (assignedClassIds.length > 0) {
@@ -66,6 +68,7 @@ export class StudentsService {
         where.classDivisionId = { [Op.in]: [] };
       }
     }
+    // Admin users: no filtering - show all students
 
     const { count, rows } = await this.studentRepository.findAndCountAll({
       where,

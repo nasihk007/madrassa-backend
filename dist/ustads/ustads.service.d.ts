@@ -15,4 +15,6 @@ export declare class UstadsService {
     update(id: string, updateUstadDto: UpdateUstadDto): Promise<Ustad>;
     remove(id: string): Promise<void>;
     getAssignedClassIds(userId: string): Promise<string[]>;
+    hasUstadProfile(userId: string): Promise<boolean>;
+    getUstadByUserId(userId: string): Promise<Ustad | null>;
 }

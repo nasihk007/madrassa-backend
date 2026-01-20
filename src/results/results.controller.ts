@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Put, Delete, UseGuards, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Put, Delete, UseGuards, Query, Request } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam, ApiBody } from '@nestjs/swagger';
 import { ResultsService } from './results.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -17,8 +17,8 @@ export class ResultsController {
   @ApiOperation({ summary: 'Get all items' })
   @ApiResponse({ status: 200, description: 'Items retrieved successfully' })
   @Get()
-  async findAll(@Query() pageOptionsDto: PageOptionsDto) {
-    return await this.resultsService.findAll(pageOptionsDto);
+  async findAll(@Query() pageOptionsDto: PageOptionsDto, @Request() req) {
+    return await this.resultsService.findAll(pageOptionsDto, req.user?.id, req.user?.role);
   }
 
   @Get('student/:studentId')

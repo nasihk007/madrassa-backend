@@ -10,6 +10,8 @@ export declare class PageOptionsDto {
     academicYearId?: string;
     priority?: string;
     date?: string;
+    startDate?: string;
+    endDate?: string;
     get skip(): number;
     get takeOrLimit(): number;
 }

@@ -12,12 +12,13 @@ const ustads_controller_1 = require("./ustads.controller");
 const ustads_service_1 = require("./ustads.service");
 const ustads_providers_1 = require("./ustads.providers");
 const database_module_1 = require("../database/database.module");
+const classes_module_1 = require("../classes/classes.module");
 let UstadsModule = class UstadsModule {
 };
 exports.UstadsModule = UstadsModule;
 exports.UstadsModule = UstadsModule = __decorate([
     (0, common_1.Module)({
-        imports: [database_module_1.DatabaseModule],
+        imports: [database_module_1.DatabaseModule, (0, common_1.forwardRef)(() => classes_module_1.ClassesModule)],
         controllers: [ustads_controller_1.UstadsController],
         providers: [ustads_service_1.UstadsService, ...ustads_providers_1.ustadsProviders],
         exports: [ustads_service_1.UstadsService],

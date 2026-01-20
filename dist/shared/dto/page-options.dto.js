@@ -109,4 +109,16 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], PageOptionsDto.prototype, "date", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ type: String, description: 'Start date filter (YYYY-MM-DD) for date range filtering' }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], PageOptionsDto.prototype, "startDate", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ type: String, description: 'End date filter (YYYY-MM-DD) for date range filtering' }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], PageOptionsDto.prototype, "endDate", void 0);
 //# sourceMappingURL=page-options.dto.js.map

@@ -67,16 +67,39 @@ let UstadsService = class UstadsService {
         return ustad;
     }
     async create(createUstadDto) {
-        const hashedPassword = await bcrypt.hash(createUstadDto.password, 10);
-        const savedUser = await this.userRepository.create({
-            name: createUstadDto.name,
-            email: createUstadDto.email,
-            password: hashedPassword,
-            role: user_entity_1.UserRole.USTAD,
-        });
-        const { password, assignedClasses, ...ustadData } = createUstadDto;
+        let savedUser;
+        if (createUstadDto.userId) {
+            savedUser = await this.userRepository.findByPk(createUstadDto.userId);
+            if (!savedUser) {
+                throw new common_1.NotFoundException(`User with ID ${createUstadDto.userId} not found`);
+            }
+            const existingUstad = await this.ustadRepository.findOne({
+                where: { userId: createUstadDto.userId },
+            });
+            if (existingUstad) {
+                throw new common_1.BadRequestException(`User with ID ${createUstadDto.userId} already has an ustad profile`);
+            }
+        }
+        else {
+            if (!createUstadDto.password) {
+                throw new common_1.BadRequestException('Password is required when creating a new user');
+            }
+            if (!createUstadDto.name || !createUstadDto.email) {
+                throw new common_1.BadRequestException('Name and email are required when creating a new user');
+            }
+            const hashedPassword = await bcrypt.hash(createUstadDto.password, 10);
+            savedUser = await this.userRepository.create({
+                name: createUstadDto.name,
+                email: createUstadDto.email,
+                password: hashedPassword,
+                role: user_entity_1.UserRole.USTAD,
+            });
+        }
+        const { password, assignedClasses, userId, ...ustadData } = createUstadDto;
         const ustad = await this.ustadRepository.create({
             ...ustadData,
+            name: savedUser.name,
+            email: savedUser.email,
             userId: savedUser.id,
             joiningDate: new Date(createUstadDto.joiningDate),
         });
@@ -159,6 +182,24 @@ let UstadsService = class UstadsService {
             where: { ustadId: ustad.id },
         });
         return classes.map((classDiv) => classDiv.id);
+    }
+    async hasUstadProfile(userId) {
+        const ustad = await this.ustadRepository.findOne({
+            where: { userId },
+        });
+        return !!ustad;
+    }
+    async getUstadByUserId(userId) {
+        return await this.ustadRepository.findOne({
+            where: { userId },
+            include: [
+                user_entity_1.User,
+                {
+                    model: class_division_entity_1.ClassDivision,
+                    as: 'assignedClasses',
+                },
+            ],
+        });
     }
 };
 exports.UstadsService = UstadsService;

@@ -12,12 +12,13 @@ const results_controller_1 = require("./results.controller");
 const results_service_1 = require("./results.service");
 const results_providers_1 = require("./results.providers");
 const database_module_1 = require("../database/database.module");
+const ustads_module_1 = require("../ustads/ustads.module");
 let ResultsModule = class ResultsModule {
 };
 exports.ResultsModule = ResultsModule;
 exports.ResultsModule = ResultsModule = __decorate([
     (0, common_1.Module)({
-        imports: [database_module_1.DatabaseModule],
+        imports: [database_module_1.DatabaseModule, (0, common_1.forwardRef)(() => ustads_module_1.UstadsModule)],
         controllers: [results_controller_1.ResultsController],
         providers: [results_service_1.ResultsService, ...results_providers_1.resultsProviders],
         exports: [results_service_1.ResultsService],

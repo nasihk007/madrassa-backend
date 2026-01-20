@@ -11,7 +11,7 @@ export declare class PrayerService {
     constructor(prayerRepository: typeof Prayer, ustadRepository: typeof Ustad, ustadsService: UstadsService);
     findAll(pageOptionsDto: PageOptionsDto, userId?: string, userRole?: string): Promise<CommonDataResponseDto>;
     findOne(id: string): Promise<Prayer>;
-    findByStudent(studentId: string): Promise<Prayer[]>;
+    findByStudent(studentId: string, pageOptionsDto?: PageOptionsDto): Promise<Prayer[]>;
     create(createPrayerDto: CreatePrayerDto): Promise<Prayer>;
     update(id: string, updatePrayerDto: UpdatePrayerDto): Promise<Prayer>;
     remove(id: string): Promise<void>;

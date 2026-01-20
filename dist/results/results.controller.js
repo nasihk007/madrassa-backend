@@ -25,8 +25,8 @@ let ResultsController = class ResultsController {
     constructor(resultsService) {
         this.resultsService = resultsService;
     }
-    async findAll(pageOptionsDto) {
-        return await this.resultsService.findAll(pageOptionsDto);
+    async findAll(pageOptionsDto, req) {
+        return await this.resultsService.findAll(pageOptionsDto, req.user?.id, req.user?.role);
     }
     async findByStudent(studentId) {
         const result = await this.resultsService.findByStudent(studentId);
@@ -55,8 +55,9 @@ __decorate([
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Items retrieved successfully' }),
     (0, common_1.Get)(),
     __param(0, (0, common_1.Query)()),
+    __param(1, (0, common_1.Request)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [page_options_dto_1.PageOptionsDto]),
+    __metadata("design:paramtypes", [page_options_dto_1.PageOptionsDto, Object]),
     __metadata("design:returntype", Promise)
 ], ResultsController.prototype, "findAll", null);
 __decorate([

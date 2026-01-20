@@ -28,8 +28,8 @@ let PrayerController = class PrayerController {
     async findAll(pageOptionsDto, req) {
         return await this.prayerService.findAll(pageOptionsDto, req.user?.id, req.user?.role);
     }
-    async findByStudent(studentId) {
-        const result = await this.prayerService.findByStudent(studentId);
+    async findByStudent(studentId, pageOptionsDto) {
+        const result = await this.prayerService.findByStudent(studentId, pageOptionsDto);
         return new common_data_response_dto_1.CommonDataResponseDto(result, true, 'Student prayer records retrieved successfully');
     }
     async findOne(id) {
@@ -63,8 +63,9 @@ __decorate([
 __decorate([
     (0, common_1.Get)('student/:studentId'),
     __param(0, (0, common_1.Param)('studentId')),
+    __param(1, (0, common_1.Query)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, page_options_dto_1.PageOptionsDto]),
     __metadata("design:returntype", Promise)
 ], PrayerController.prototype, "findByStudent", null);
 __decorate([

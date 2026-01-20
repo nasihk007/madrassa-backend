@@ -18,7 +18,7 @@ let ClassesModule = class ClassesModule {
 exports.ClassesModule = ClassesModule;
 exports.ClassesModule = ClassesModule = __decorate([
     (0, common_1.Module)({
-        imports: [database_module_1.DatabaseModule, ustads_module_1.UstadsModule],
+        imports: [database_module_1.DatabaseModule, (0, common_1.forwardRef)(() => ustads_module_1.UstadsModule)],
         controllers: [classes_controller_1.ClassesController],
         providers: [classes_service_1.ClassesService, ...classes_providers_1.classesProviders],
         exports: [classes_service_1.ClassesService],

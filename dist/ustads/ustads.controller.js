@@ -21,12 +21,24 @@ const common_data_response_dto_1 = require("../shared/dto/common-data-response.d
 const page_options_dto_1 = require("../shared/dto/page-options.dto");
 const create_ustad_dto_1 = require("./dto/create-ustad.dto");
 const update_ustad_dto_1 = require("./dto/update-ustad.dto");
+const classes_service_1 = require("../classes/classes.service");
 let UstadsController = class UstadsController {
-    constructor(ustadsService) {
+    constructor(ustadsService, classesService) {
         this.ustadsService = ustadsService;
+        this.classesService = classesService;
     }
     async findAll(pageOptionsDto) {
         return await this.ustadsService.findAll(pageOptionsDto);
+    }
+    async getMyProfile(req) {
+        const ustad = await this.ustadsService.getUstadByUserId(req.user.id);
+        if (!ustad) {
+            return new common_data_response_dto_1.CommonDataResponseDto(null, false, 'Ustad profile not found');
+        }
+        return new common_data_response_dto_1.CommonDataResponseDto(ustad, true, 'Ustad profile retrieved successfully');
+    }
+    async getMyClasses(pageOptionsDto, req) {
+        return await this.classesService.findAll(pageOptionsDto, req.user.id, req.user.role, true);
     }
     async findOne(id) {
         const result = await this.ustadsService.findOne(id);
@@ -55,6 +67,26 @@ __decorate([
     __metadata("design:paramtypes", [page_options_dto_1.PageOptionsDto]),
     __metadata("design:returntype", Promise)
 ], UstadsController.prototype, "findAll", null);
+__decorate([
+    (0, swagger_1.ApiOperation)({ summary: 'Get current user ustad profile' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Ustad profile retrieved successfully' }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: 'Ustad profile not found' }),
+    (0, common_1.Get)('my-profile'),
+    __param(0, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], UstadsController.prototype, "getMyProfile", null);
+__decorate([
+    (0, swagger_1.ApiOperation)({ summary: 'Get my assigned classes' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Assigned classes retrieved successfully' }),
+    (0, common_1.Get)('my-classes'),
+    __param(0, (0, common_1.Query)()),
+    __param(1, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [page_options_dto_1.PageOptionsDto, Object]),
+    __metadata("design:returntype", Promise)
+], UstadsController.prototype, "getMyClasses", null);
 __decorate([
     (0, swagger_1.ApiOperation)({ summary: 'Get ustad by ID' }),
     (0, swagger_1.ApiParam)({ name: 'id', description: 'Ustad ID' }),
@@ -107,6 +139,7 @@ exports.UstadsController = UstadsController = __decorate([
     (0, swagger_1.ApiBearerAuth)('JWT-auth'),
     (0, common_1.Controller)('ustads'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
-    __metadata("design:paramtypes", [ustads_service_1.UstadsService])
+    __metadata("design:paramtypes", [ustads_service_1.UstadsService,
+        classes_service_1.ClassesService])
 ], UstadsController);
 //# sourceMappingURL=ustads.controller.js.map

@@ -7,7 +7,7 @@ export declare class ClassesService {
     private ustadRepository;
     private ustadsService;
     constructor(classDivisionRepository: typeof ClassDivision, ustadRepository: typeof Ustad, ustadsService: UstadsService);
-    findAll(pageOptionsDto: PageOptionsDto, userId?: string, userRole?: string): Promise<CommonDataResponseDto>;
+    findAll(pageOptionsDto: PageOptionsDto, userId?: string, userRole?: string, filterByAssigned?: boolean): Promise<CommonDataResponseDto>;
     findOne(id: string): Promise<ClassDivision>;
     create(createClassDto: any): Promise<ClassDivision>;
     update(id: string, updateClassDto: any): Promise<ClassDivision>;
