@@ -13,9 +13,21 @@ export declare class ExamResult extends Model<ExamResult> {
     studentId: string;
     markedById: string;
     academicYearId: string;
+    status: 'pending' | 'approved' | 'published';
+    approvedById: string;
+    approvedAt: Date;
+    publishedAt: Date;
+    isPassFail: boolean;
+    passFailStatus: 'pass' | 'fail';
+    totalMarksCalculated: number;
+    totalHajers: number;
+    classRank: number;
+    totalPossibleMarks: number;
+    resultEntrySessionId: string;
     createdAt: Date;
     updatedAt: Date;
     student: Student;
     markedBy: Ustad;
+    approvedBy: Ustad;
     academicYear: AcademicYear;
 }

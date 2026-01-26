@@ -12,6 +12,7 @@ import { Prayer } from '../entities/prayer.entity';
 import { ExamResult } from '../entities/exam-result.entity';
 import { Announcement } from '../entities/announcement.entity';
 import { Parent } from '../entities/parent.entity';
+import { ResultEntrySession } from '../entities/result-entry-session.entity';
 
 /**
  * Migrate data from ustad_class_assignments junction table to ustad_id column
@@ -137,6 +138,7 @@ export const databaseProviders = [
         ExamResult,
         Announcement,
         Parent,
+        ResultEntrySession,
       ]);
 
       // Database sync based on environment variable

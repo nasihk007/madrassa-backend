@@ -201,6 +201,14 @@ let UstadsService = class UstadsService {
             ],
         });
     }
+    async updatePhoneByUserId(userId, phone) {
+        const ustad = await this.getUstadByUserId(userId);
+        if (!ustad) {
+            throw new common_1.NotFoundException('Ustad not found');
+        }
+        await ustad.update({ phone });
+        return ustad;
+    }
 };
 exports.UstadsService = UstadsService;
 exports.UstadsService = UstadsService = __decorate([

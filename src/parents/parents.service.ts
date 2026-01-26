@@ -285,6 +285,15 @@ export class ParentsService {
     return this.getParentById(parentId);
   }
 
+  async updatePhoneByUserId(userId: string, phone: string): Promise<Parent> {
+    const parent = await this.getParentByUserId(userId);
+    if (!parent) {
+      throw new NotFoundException('Parent not found');
+    }
+    await parent.update({ phone });
+    return parent;
+  }
+
   private async setActiveStudent(parent: Parent, studentId: string): Promise<void> {
     if (!parent.students || parent.students.length === 0) {
       throw new BadRequestException('Parent has no students');

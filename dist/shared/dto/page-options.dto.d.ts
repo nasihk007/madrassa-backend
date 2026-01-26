@@ -12,6 +12,8 @@ export declare class PageOptionsDto {
     date?: string;
     startDate?: string;
     endDate?: string;
+    status?: string;
+    examType?: string;
     get skip(): number;
     get takeOrLimit(): number;
 }

@@ -87,6 +87,85 @@ export class ExamResult extends Model<ExamResult> {
   academicYearId: string;
 
   @Column({
+    type: DataType.ENUM('pending', 'approved', 'published'),
+    allowNull: false,
+    defaultValue: 'pending',
+  })
+  status: 'pending' | 'approved' | 'published';
+
+  @ForeignKey(() => Ustad)
+  @Column({
+    type: DataType.UUID,
+    allowNull: true,
+    field: 'approved_by_id',
+  })
+  approvedById: string;
+
+  @Column({
+    type: DataType.DATE,
+    allowNull: true,
+    field: 'approved_at',
+  })
+  approvedAt: Date;
+
+  @Column({
+    type: DataType.DATE,
+    allowNull: true,
+    field: 'published_at',
+  })
+  publishedAt: Date;
+
+  @Column({
+    type: DataType.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+    field: 'is_pass_fail',
+  })
+  isPassFail: boolean;
+
+  @Column({
+    type: DataType.ENUM('pass', 'fail'),
+    allowNull: true,
+    field: 'pass_fail_status',
+  })
+  passFailStatus: 'pass' | 'fail';
+
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: true,
+    field: 'total_marks_calculated',
+  })
+  totalMarksCalculated: number;
+
+  @Column({
+    type: DataType.DECIMAL(10, 2),
+    allowNull: true,
+    field: 'total_hajers',
+  })
+  totalHajers: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: true,
+    field: 'class_rank',
+  })
+  classRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: true,
+    field: 'total_possible_marks',
+  })
+  totalPossibleMarks: number;
+
+  @Column({
+    type: DataType.UUID,
+    allowNull: true,
+    field: 'result_entry_session_id',
+  })
+  resultEntrySessionId: string;
+
+  @Column({
     type: DataType.DATE,
     field: 'created_at',
   })
@@ -104,6 +183,9 @@ export class ExamResult extends Model<ExamResult> {
 
   @BelongsTo(() => Ustad)
   markedBy: Ustad;
+
+  @BelongsTo(() => Ustad, { foreignKey: 'approved_by_id' })
+  approvedBy: Ustad;
 
   @BelongsTo(() => AcademicYear)
   academicYear: AcademicYear;

@@ -36,5 +36,13 @@ export class CreateExamResultDto {
   @IsOptional()
   @IsUUID()
   academicYearId?: string;
+
+  @IsOptional()
+  @IsString()
+  passFailStatus?: 'pass' | 'fail';
+
+  @IsOptional()
+  @IsUUID()
+  resultEntrySessionId?: string;
 }
 

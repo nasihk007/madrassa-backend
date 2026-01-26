@@ -9,4 +9,6 @@ export declare class CreateExamResultDto {
     markedById?: string;
     markedByUserId?: string;
     academicYearId?: string;
+    passFailStatus?: 'pass' | 'fail';
+    resultEntrySessionId?: string;
 }

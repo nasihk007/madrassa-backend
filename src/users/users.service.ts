@@ -1,5 +1,6 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { Op } from 'sequelize';
+import * as bcrypt from 'bcryptjs';
 import { User } from '../entities/user.entity';
 import { PageOptionsDto, CommonDataResponseDto, PageMetaDto } from '../shared/dto';
 
@@ -60,5 +61,40 @@ export class UsersService {
     if (user) {
       await user.destroy();
     }
+  }
+
+  async updateEmail(userId: string, email: string): Promise<User> {
+    const user = await this.findOne(userId);
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+
+    // Check if email already exists for another user
+    const existingUser = await this.findByEmail(email);
+    if (existingUser && existingUser.id !== userId) {
+      throw new BadRequestException('Email already exists');
+    }
+
+    await user.update({ email });
+    return user;
+  }
+
+  async updatePassword(userId: string, currentPassword: string, newPassword: string): Promise<void> {
+    const user = await this.findOne(userId);
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+
+    // Verify current password
+    const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Current password is incorrect');
+    }
+
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update password
+    await user.update({ password: hashedPassword });
   }
 }

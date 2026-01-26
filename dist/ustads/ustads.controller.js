@@ -21,6 +21,7 @@ const common_data_response_dto_1 = require("../shared/dto/common-data-response.d
 const page_options_dto_1 = require("../shared/dto/page-options.dto");
 const create_ustad_dto_1 = require("./dto/create-ustad.dto");
 const update_ustad_dto_1 = require("./dto/update-ustad.dto");
+const update_phone_dto_1 = require("./dto/update-phone.dto");
 const classes_service_1 = require("../classes/classes.service");
 let UstadsController = class UstadsController {
     constructor(ustadsService, classesService) {
@@ -55,6 +56,10 @@ let UstadsController = class UstadsController {
     async remove(id) {
         await this.ustadsService.remove(id);
         return new common_data_response_dto_1.CommonDataResponseDto(null, true, 'Ustad deleted successfully');
+    }
+    async updatePhone(req, updatePhoneDto) {
+        const ustad = await this.ustadsService.updatePhoneByUserId(req.user.id, updatePhoneDto.phone);
+        return new common_data_response_dto_1.CommonDataResponseDto(ustad, true, 'Phone updated successfully');
     }
 };
 exports.UstadsController = UstadsController;
@@ -134,6 +139,19 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], UstadsController.prototype, "remove", null);
+__decorate([
+    (0, swagger_1.ApiOperation)({ summary: 'Update current ustad phone number' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Phone updated successfully' }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: 'Bad Request - Validation error' }),
+    (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized' }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: 'Ustad not found' }),
+    (0, common_1.Put)('me/phone'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, update_phone_dto_1.UpdatePhoneDto]),
+    __metadata("design:returntype", Promise)
+], UstadsController.prototype, "updatePhone", null);
 exports.UstadsController = UstadsController = __decorate([
     (0, swagger_1.ApiTags)('ustads'),
     (0, swagger_1.ApiBearerAuth)('JWT-auth'),

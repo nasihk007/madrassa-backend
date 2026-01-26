@@ -13,6 +13,7 @@ const prayer_entity_1 = require("../entities/prayer.entity");
 const exam_result_entity_1 = require("../entities/exam-result.entity");
 const announcement_entity_1 = require("../entities/announcement.entity");
 const parent_entity_1 = require("../entities/parent.entity");
+const result_entry_session_entity_1 = require("../entities/result-entry-session.entity");
 async function migrateUstadClassAssignments(sequelize) {
     try {
         const queryInterface = sequelize.getQueryInterface();
@@ -114,6 +115,7 @@ exports.databaseProviders = [
                 exam_result_entity_1.ExamResult,
                 announcement_entity_1.Announcement,
                 parent_entity_1.Parent,
+                result_entry_session_entity_1.ResultEntrySession,
             ]);
             const skipSync = process.env.SKIP_DB_SYNC === 'true';
             if (!skipSync) {

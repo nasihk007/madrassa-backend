@@ -6,6 +6,7 @@ import { CommonDataResponseDto } from '../shared/dto/common-data-response.dto';
 import { PageOptionsDto } from '../shared/dto/page-options.dto';
 import { CreateUstadDto } from './dto/create-ustad.dto';
 import { UpdateUstadDto } from './dto/update-ustad.dto';
+import { UpdatePhoneDto } from './dto/update-phone.dto';
 import { ClassesService } from '../classes/classes.service';
 
 @ApiTags('ustads')
@@ -84,6 +85,17 @@ export class UstadsController {
   async remove(@Param('id') id: string) {
     await this.ustadsService.remove(id);
     return new CommonDataResponseDto(null, true, 'Ustad deleted successfully');
+  }
+
+  @ApiOperation({ summary: 'Update current ustad phone number' })
+  @ApiResponse({ status: 200, description: 'Phone updated successfully' })
+  @ApiResponse({ status: 400, description: 'Bad Request - Validation error' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 404, description: 'Ustad not found' })
+  @Put('me/phone')
+  async updatePhone(@Request() req, @Body() updatePhoneDto: UpdatePhoneDto) {
+    const ustad = await this.ustadsService.updatePhoneByUserId(req.user.id, updatePhoneDto.phone);
+    return new CommonDataResponseDto(ustad, true, 'Phone updated successfully');
   }
 }
 

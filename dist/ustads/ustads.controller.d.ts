@@ -3,6 +3,7 @@ import { CommonDataResponseDto } from '../shared/dto/common-data-response.dto';
 import { PageOptionsDto } from '../shared/dto/page-options.dto';
 import { CreateUstadDto } from './dto/create-ustad.dto';
 import { UpdateUstadDto } from './dto/update-ustad.dto';
+import { UpdatePhoneDto } from './dto/update-phone.dto';
 import { ClassesService } from '../classes/classes.service';
 export declare class UstadsController {
     private readonly ustadsService;
@@ -15,4 +16,5 @@ export declare class UstadsController {
     create(createUstadDto: CreateUstadDto): Promise<CommonDataResponseDto>;
     update(id: string, updateUstadDto: UpdateUstadDto): Promise<CommonDataResponseDto>;
     remove(id: string): Promise<CommonDataResponseDto>;
+    updatePhone(req: any, updatePhoneDto: UpdatePhoneDto): Promise<CommonDataResponseDto>;
 }

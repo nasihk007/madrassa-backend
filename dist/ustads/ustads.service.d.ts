@@ -17,4 +17,5 @@ export declare class UstadsService {
     getAssignedClassIds(userId: string): Promise<string[]>;
     hasUstadProfile(userId: string): Promise<boolean>;
     getUstadByUserId(userId: string): Promise<Ustad | null>;
+    updatePhoneByUserId(userId: string, phone: string): Promise<Ustad>;
 }

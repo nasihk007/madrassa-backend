@@ -6,6 +6,10 @@ import { CommonDataResponseDto } from '../shared/dto/common-data-response.dto';
 import { PageOptionsDto } from '../shared/dto/page-options.dto';
 import { CreateExamResultDto } from './dto/create-exam-result.dto';
 import { UpdateExamResultDto } from './dto/update-exam-result.dto';
+import { CreateBulkResultEntryDto } from './dto/create-bulk-result-entry.dto';
+import { ApproveResultsDto } from './dto/approve-results.dto';
+import { PublishResultsDto } from './dto/publish-results.dto';
+import { UserRole } from '../entities/user.entity';
 
 @ApiTags('results')
 @ApiBearerAuth('JWT-auth')
@@ -22,9 +26,75 @@ export class ResultsController {
   }
 
   @Get('student/:studentId')
-  async findByStudent(@Param('studentId') studentId: string) {
-    const result = await this.resultsService.findByStudent(studentId);
+  async findByStudent(@Param('studentId') studentId: string, @Request() req) {
+    // Check if user is a parent (either by role or by parent_id in token)
+    // When parent logs in as student, token has role="student" but also has parent_id
+    const user = req.user as any;
+    const isParent = user?.role === 'parent' || user?.role === UserRole.PARENT || !!user?.parent_id;
+    const result = await this.resultsService.findByStudent(studentId, user?.id, isParent ? 'parent' : user?.role);
     return new CommonDataResponseDto(result, true, 'Student results retrieved successfully');
+  }
+
+  @Get('pending')
+  @ApiOperation({ summary: 'Get pending results' })
+  async getPendingResults(@Query() pageOptionsDto: PageOptionsDto, @Request() req) {
+    // Only admin can see pending results
+    if (req.user?.role !== 'admin') {
+      throw new Error('Only admin can view pending results');
+    }
+    const whereClause: any = { status: 'pending' };
+    const result = await this.resultsService.findAll({ ...pageOptionsDto, ...whereClause } as PageOptionsDto, req.user?.id, req.user?.role);
+    return result;
+  }
+
+  @Get('published')
+  @ApiOperation({ summary: 'Get published results' })
+  async getPublishedResults(@Query() pageOptionsDto: PageOptionsDto, @Request() req) {
+    return await this.resultsService.getPublishedResults(pageOptionsDto, req.user?.id, req.user?.role);
+  }
+
+  @Get('class/:classDivisionId')
+  @ApiOperation({ summary: 'Get results by class' })
+  @ApiParam({ name: 'classDivisionId', description: 'Class Division ID' })
+  async getByClass(@Param('classDivisionId') classDivisionId: string, @Query() pageOptionsDto: PageOptionsDto, @Request() req) {
+    // This will filter by class through student relationship
+    const result = await this.resultsService.findAll({ ...pageOptionsDto, classDivisionId } as PageOptionsDto, req.user?.id, req.user?.role);
+    return result;
+  }
+
+  @Get('rank/:classDivisionId/:examType')
+  @ApiOperation({ summary: 'Get class ranking' })
+  @ApiParam({ name: 'classDivisionId', description: 'Class Division ID' })
+  @ApiParam({ name: 'examType', description: 'Exam Type' })
+  async getRank(@Param('classDivisionId') classDivisionId: string, @Param('examType') examType: string, @Query('academicYearId') academicYearId?: string) {
+    // Recalculate ranks to ensure they're up to date
+    await this.resultsService.calculateRank(examType, classDivisionId, academicYearId);
+    
+    // Get all results for the class and exam type
+    const results = await this.resultsService.findAll({
+      examType,
+      classDivisionId,
+      academicYearId,
+      take: 100,
+    } as PageOptionsDto);
+    
+    // Group by student and return ranking
+    return results;
+  }
+
+  @Get('progress-card/:studentId')
+  @ApiOperation({ summary: 'Get progress card data' })
+  @ApiParam({ name: 'studentId', description: 'Student ID' })
+  async getProgressCard(@Param('studentId') studentId: string, @Query('examType') examType?: string) {
+    const results = await this.resultsService.findByStudent(studentId);
+    
+    // Filter by exam type if provided
+    let filteredResults = results;
+    if (examType) {
+      filteredResults = results.filter(r => r.examType === examType);
+    }
+    
+    return new CommonDataResponseDto(filteredResults, true, 'Progress card data retrieved successfully');
   }
 
   @ApiOperation({ summary: 'Get item by ID' })
@@ -67,6 +137,41 @@ export class ResultsController {
   async remove(@Param('id') id: string) {
     await this.resultsService.remove(id);
     return new CommonDataResponseDto(null, true, 'Result deleted successfully');
+  }
+
+  @Post('bulk-entry')
+  @ApiOperation({ summary: 'Create bulk result entry' })
+  @ApiBody({ type: CreateBulkResultEntryDto })
+  @ApiResponse({ status: 201, description: 'Bulk result entry created successfully' })
+  async createBulkEntry(@Body() createBulkEntryDto: CreateBulkResultEntryDto, @Request() req) {
+    const result = await this.resultsService.createBulkEntry(createBulkEntryDto, req.user?.id);
+    return new CommonDataResponseDto(result, true, 'Bulk result entry created successfully');
+  }
+
+  @Post('approve')
+  @ApiOperation({ summary: 'Approve results by exam type' })
+  @ApiBody({ type: ApproveResultsDto })
+  @ApiResponse({ status: 200, description: 'Results approved successfully' })
+  async approveResults(@Body() approveResultsDto: ApproveResultsDto, @Request() req) {
+    // Only admin can approve
+    if (req.user?.role !== 'admin') {
+      throw new Error('Only admin can approve results');
+    }
+    const count = await this.resultsService.approveResults(approveResultsDto, req.user.id);
+    return new CommonDataResponseDto({ count }, true, `Successfully approved ${count} results`);
+  }
+
+  @Post('publish')
+  @ApiOperation({ summary: 'Publish approved results' })
+  @ApiBody({ type: PublishResultsDto })
+  @ApiResponse({ status: 200, description: 'Results published successfully' })
+  async publishResults(@Body() publishResultsDto: PublishResultsDto, @Request() req) {
+    // Only admin can publish
+    if (req.user?.role !== 'admin') {
+      throw new Error('Only admin can publish results');
+    }
+    const count = await this.resultsService.publishResults(publishResultsDto, req.user.id);
+    return new CommonDataResponseDto({ count }, true, `Successfully published ${count} results`);
   }
 }
 

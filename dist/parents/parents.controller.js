@@ -21,6 +21,7 @@ const dto_1 = require("../shared/dto");
 const user_entity_1 = require("../entities/user.entity");
 const create_parent_dto_1 = require("./dto/create-parent.dto");
 const update_parent_dto_1 = require("./dto/update-parent.dto");
+const update_phone_dto_1 = require("./dto/update-phone.dto");
 let ParentsController = class ParentsController {
     constructor(parentsService) {
         this.parentsService = parentsService;
@@ -81,6 +82,10 @@ let ParentsController = class ParentsController {
         this.ensureAdmin(req.user);
         await this.parentsService.setActiveStudentForParent(parentId, studentId);
         return new dto_1.DataResponseDto(null, true, 'Active student updated successfully');
+    }
+    async updatePhone(req, updatePhoneDto) {
+        const parent = await this.parentsService.updatePhoneByUserId(req.user.id, updatePhoneDto.phone);
+        return new dto_1.DataResponseDto(parent, true, 'Phone updated successfully');
     }
     ensureAdmin(user) {
         if (user.role !== user_entity_1.UserRole.ADMIN) {
@@ -187,6 +192,19 @@ __decorate([
     __metadata("design:paramtypes", [String, String, Object]),
     __metadata("design:returntype", Promise)
 ], ParentsController.prototype, "activateStudentForParent", null);
+__decorate([
+    (0, swagger_1.ApiOperation)({ summary: 'Update current parent phone number' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Phone updated successfully' }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: 'Bad Request - Validation error' }),
+    (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized' }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: 'Parent not found' }),
+    (0, common_1.Put)('me/phone'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, update_phone_dto_1.UpdatePhoneDto]),
+    __metadata("design:returntype", Promise)
+], ParentsController.prototype, "updatePhone", null);
 exports.ParentsController = ParentsController = __decorate([
     (0, swagger_1.ApiTags)('parents'),
     (0, swagger_1.ApiBearerAuth)('JWT-auth'),

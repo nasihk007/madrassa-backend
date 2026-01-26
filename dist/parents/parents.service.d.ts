@@ -18,6 +18,7 @@ export declare class ParentsService {
     deleteParent(id: string): Promise<void>;
     setActiveStudentForUser(userId: string, studentId: string): Promise<Parent>;
     setActiveStudentForParent(parentId: string, studentId: string): Promise<Parent>;
+    updatePhoneByUserId(userId: string, phone: string): Promise<Parent>;
     private setActiveStudent;
     private decorateParent;
     private attachLegacyFields;

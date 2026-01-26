@@ -25,6 +25,7 @@ import { CommonDataResponseDto, DataResponseDto, PageOptionsDto } from '../share
 import { UserRole } from '../entities/user.entity';
 import { CreateParentDto } from './dto/create-parent.dto';
 import { UpdateParentDto } from './dto/update-parent.dto';
+import { UpdatePhoneDto } from './dto/update-phone.dto';
 
 @ApiTags('parents')
 @ApiBearerAuth('JWT-auth')
@@ -144,6 +145,17 @@ export class ParentsController {
     this.ensureAdmin(req.user);
     await this.parentsService.setActiveStudentForParent(parentId, studentId);
     return new DataResponseDto(null, true, 'Active student updated successfully');
+  }
+
+  @ApiOperation({ summary: 'Update current parent phone number' })
+  @ApiResponse({ status: 200, description: 'Phone updated successfully' })
+  @ApiResponse({ status: 400, description: 'Bad Request - Validation error' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 404, description: 'Parent not found' })
+  @Put('me/phone')
+  async updatePhone(@Request() req, @Body() updatePhoneDto: UpdatePhoneDto) {
+    const parent = await this.parentsService.updatePhoneByUserId(req.user.id, updatePhoneDto.phone);
+    return new DataResponseDto(parent, true, 'Phone updated successfully');
   }
 
   private ensureAdmin(user: { role: UserRole }) {

@@ -84,6 +84,16 @@ export class PageOptionsDto {
   @IsOptional()
   endDate?: string;
 
+  @ApiPropertyOptional({ type: String, description: 'Status filter for results' })
+  @IsString()
+  @IsOptional()
+  status?: string;
+
+  @ApiPropertyOptional({ type: String, description: 'Exam type filter' })
+  @IsString()
+  @IsOptional()
+  examType?: string;
+
   get skip(): number {
     return ((this.page ?? 1) - 1) * (this.limit ?? this.take ?? 10);
   }

@@ -222,6 +222,14 @@ let ParentsService = class ParentsService {
         await this.setActiveStudent(parent, studentId);
         return this.getParentById(parentId);
     }
+    async updatePhoneByUserId(userId, phone) {
+        const parent = await this.getParentByUserId(userId);
+        if (!parent) {
+            throw new common_1.NotFoundException('Parent not found');
+        }
+        await parent.update({ phone });
+        return parent;
+    }
     async setActiveStudent(parent, studentId) {
         if (!parent.students || parent.students.length === 0) {
             throw new common_1.BadRequestException('Parent has no students');

@@ -99,6 +99,96 @@ __decorate([
 ], ExamResult.prototype, "academicYearId", void 0);
 __decorate([
     (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.ENUM('pending', 'approved', 'published'),
+        allowNull: false,
+        defaultValue: 'pending',
+    }),
+    __metadata("design:type", String)
+], ExamResult.prototype, "status", void 0);
+__decorate([
+    (0, sequelize_typescript_1.ForeignKey)(() => ustad_entity_1.Ustad),
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.UUID,
+        allowNull: true,
+        field: 'approved_by_id',
+    }),
+    __metadata("design:type", String)
+], ExamResult.prototype, "approvedById", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.DATE,
+        allowNull: true,
+        field: 'approved_at',
+    }),
+    __metadata("design:type", Date)
+], ExamResult.prototype, "approvedAt", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.DATE,
+        allowNull: true,
+        field: 'published_at',
+    }),
+    __metadata("design:type", Date)
+], ExamResult.prototype, "publishedAt", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+        field: 'is_pass_fail',
+    }),
+    __metadata("design:type", Boolean)
+], ExamResult.prototype, "isPassFail", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.ENUM('pass', 'fail'),
+        allowNull: true,
+        field: 'pass_fail_status',
+    }),
+    __metadata("design:type", String)
+], ExamResult.prototype, "passFailStatus", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.INTEGER,
+        allowNull: true,
+        field: 'total_marks_calculated',
+    }),
+    __metadata("design:type", Number)
+], ExamResult.prototype, "totalMarksCalculated", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.DECIMAL(10, 2),
+        allowNull: true,
+        field: 'total_hajers',
+    }),
+    __metadata("design:type", Number)
+], ExamResult.prototype, "totalHajers", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.INTEGER,
+        allowNull: true,
+        field: 'class_rank',
+    }),
+    __metadata("design:type", Number)
+], ExamResult.prototype, "classRank", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.INTEGER,
+        allowNull: true,
+        field: 'total_possible_marks',
+    }),
+    __metadata("design:type", Number)
+], ExamResult.prototype, "totalPossibleMarks", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.UUID,
+        allowNull: true,
+        field: 'result_entry_session_id',
+    }),
+    __metadata("design:type", String)
+], ExamResult.prototype, "resultEntrySessionId", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
         type: sequelize_typescript_1.DataType.DATE,
         field: 'created_at',
     }),
@@ -119,6 +209,10 @@ __decorate([
     (0, sequelize_typescript_1.BelongsTo)(() => ustad_entity_1.Ustad),
     __metadata("design:type", ustad_entity_1.Ustad)
 ], ExamResult.prototype, "markedBy", void 0);
+__decorate([
+    (0, sequelize_typescript_1.BelongsTo)(() => ustad_entity_1.Ustad, { foreignKey: 'approved_by_id' }),
+    __metadata("design:type", ustad_entity_1.Ustad)
+], ExamResult.prototype, "approvedBy", void 0);
 __decorate([
     (0, sequelize_typescript_1.BelongsTo)(() => academic_year_entity_1.AcademicYear),
     __metadata("design:type", academic_year_entity_1.AcademicYear)

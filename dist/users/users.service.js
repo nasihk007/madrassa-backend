@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UsersService = void 0;
 const common_1 = require("@nestjs/common");
 const sequelize_1 = require("sequelize");
+const bcrypt = require("bcryptjs");
 const dto_1 = require("../shared/dto");
 let UsersService = class UsersService {
     constructor(userRepository) {
@@ -61,6 +62,30 @@ let UsersService = class UsersService {
         if (user) {
             await user.destroy();
         }
+    }
+    async updateEmail(userId, email) {
+        const user = await this.findOne(userId);
+        if (!user) {
+            throw new common_1.BadRequestException('User not found');
+        }
+        const existingUser = await this.findByEmail(email);
+        if (existingUser && existingUser.id !== userId) {
+            throw new common_1.BadRequestException('Email already exists');
+        }
+        await user.update({ email });
+        return user;
+    }
+    async updatePassword(userId, currentPassword, newPassword) {
+        const user = await this.findOne(userId);
+        if (!user) {
+            throw new common_1.BadRequestException('User not found');
+        }
+        const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+        if (!isPasswordValid) {
+            throw new common_1.UnauthorizedException('Current password is incorrect');
+        }
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        await user.update({ password: hashedPassword });
     }
 };
 exports.UsersService = UsersService;

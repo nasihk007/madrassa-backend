@@ -9,4 +9,6 @@ export declare class UsersService {
     create(userData: Partial<User>): Promise<User>;
     update(id: string, userData: Partial<User>): Promise<User | null>;
     remove(id: string): Promise<void>;
+    updateEmail(userId: string, email: string): Promise<User>;
+    updatePassword(userId: string, currentPassword: string, newPassword: string): Promise<void>;
 }

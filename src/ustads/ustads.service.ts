@@ -283,5 +283,20 @@ export class UstadsService {
       ],
     });
   }
+
+  /**
+   * Update ustad phone number by user ID
+   * @param userId - The user ID
+   * @param phone - The new phone number
+   * @returns Updated ustad profile
+   */
+  async updatePhoneByUserId(userId: string, phone: string): Promise<Ustad> {
+    const ustad = await this.getUstadByUserId(userId);
+    if (!ustad) {
+      throw new NotFoundException('Ustad not found');
+    }
+    await ustad.update({ phone });
+    return ustad;
+  }
 }
 

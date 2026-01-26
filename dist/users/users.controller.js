@@ -19,6 +19,8 @@ const users_service_1 = require("./users.service");
 const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
 const common_data_response_dto_1 = require("../shared/dto/common-data-response.dto");
 const page_options_dto_1 = require("../shared/dto/page-options.dto");
+const update_email_dto_1 = require("./dto/update-email.dto");
+const update_password_dto_1 = require("./dto/update-password.dto");
 let UsersController = class UsersController {
     constructor(usersService) {
         this.usersService = usersService;
@@ -41,6 +43,14 @@ let UsersController = class UsersController {
     async remove(id) {
         await this.usersService.remove(id);
         return new common_data_response_dto_1.CommonDataResponseDto(null, true, 'User deleted successfully');
+    }
+    async updateEmail(req, updateEmailDto) {
+        const result = await this.usersService.updateEmail(req.user.id, updateEmailDto.email);
+        return new common_data_response_dto_1.CommonDataResponseDto(result, true, 'Email updated successfully');
+    }
+    async updatePassword(req, updatePasswordDto) {
+        await this.usersService.updatePassword(req.user.id, updatePasswordDto.currentPassword, updatePasswordDto.newPassword);
+        return new common_data_response_dto_1.CommonDataResponseDto(null, true, 'Password updated successfully');
     }
 };
 exports.UsersController = UsersController;
@@ -97,6 +107,30 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "remove", null);
+__decorate([
+    (0, swagger_1.ApiOperation)({ summary: 'Update current user email' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Email updated successfully' }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: 'Bad Request - Email already exists or validation error' }),
+    (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized' }),
+    (0, common_1.Put)('me/email'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, update_email_dto_1.UpdateEmailDto]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "updateEmail", null);
+__decorate([
+    (0, swagger_1.ApiOperation)({ summary: 'Update current user password' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Password updated successfully' }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: 'Bad Request - Validation error' }),
+    (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized - Current password is incorrect' }),
+    (0, common_1.Put)('me/password'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, update_password_dto_1.UpdatePasswordDto]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "updatePassword", null);
 exports.UsersController = UsersController = __decorate([
     (0, swagger_1.ApiTags)('users'),
     (0, swagger_1.ApiBearerAuth)('JWT-auth'),
