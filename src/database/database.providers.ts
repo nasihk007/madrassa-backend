@@ -112,6 +112,8 @@ export const databaseProviders = [
         database: database,
         logging: false,
 
+        ssl: true,
+
         dialectOptions: {
           ssl: {
             require: true,
