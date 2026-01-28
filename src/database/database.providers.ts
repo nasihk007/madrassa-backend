@@ -182,12 +182,10 @@
 //   },
 // ];
 
-
-
 import { Sequelize } from 'sequelize-typescript';
 import { ConfigService } from '@nestjs/config';
 
-// Entities
+// Import all entities
 import { User } from '../entities/user.entity';
 import { Student } from '../entities/student.entity';
 import { Ustad } from '../entities/ustad.entity';
@@ -201,7 +199,8 @@ import { Parent } from '../entities/parent.entity';
 import { ResultEntrySession } from '../entities/result-entry-session.entity';
 
 /**
- * Migration: many-to-many ustad_class_assignments → class_divisions.ustad_id
+ * Migrate data from ustad_class_assignments junction table to ustad_id column
+ * Handles transition from many-to-many to one-to-many relationship
  */
 async function migrateUstadClassAssignments(sequelize: Sequelize) {
   try {
@@ -253,7 +252,7 @@ async function migrateUstadClassAssignments(sequelize: Sequelize) {
         'DROP TABLE IF EXISTS ustad_class_assignments CASCADE'
       );
 
-      console.log('✅ Migration completed');
+      console.log('✅ Ustad migration completed');
     }
   } catch (error: any) {
     console.warn('⚠️ Migration skipped:', error.message);
@@ -264,39 +263,38 @@ export const databaseProviders = [
   {
     provide: 'SEQUELIZE',
     useFactory: async (configService: ConfigService) => {
-      const sequelize = new Sequelize({
+      const databaseUrl = configService.get<string>('DATABASE_URL');
+
+      if (!databaseUrl) {
+        throw new Error('❌ DATABASE_URL is not defined');
+      }
+
+      console.log('📊 Connecting to PostgreSQL using DATABASE_URL');
+      console.log('🔐 SSL enabled (Aiven / Render compatible)');
+
+      const sequelize = new Sequelize(databaseUrl, {
         dialect: 'postgres',
-        host: configService.get<string>('DATABASE_HOST'),
-        port: Number(configService.get<string>('DATABASE_PORT')),
-        username: configService.get<string>('DATABASE_USER'),
-        password: configService.get<string>('DATABASE_PASSWORD'),
-        database: configService.get<string>('DATABASE_NAME'),
-
         logging: false,
-
-        // 🔐 REQUIRED FOR AIVEN
-        ssl: true,
         dialectOptions: {
           ssl: {
             require: true,
             rejectUnauthorized: false,
           },
         },
-
         define: {
           timestamps: true,
           freezeTableName: true,
           underscored: true,
         },
-
         pool: {
           max: 5,
           min: 0,
-          acquire: 60000,
+          acquire: 50000,
           idle: 10000,
         },
       });
 
+      // Register models
       sequelize.addModels([
         User,
         Student,
@@ -311,16 +309,6 @@ export const databaseProviders = [
         ResultEntrySession,
       ]);
 
-      // 🔐 STEP 1 — AUTHENTICATE FIRST
-      try {
-        await sequelize.authenticate();
-        console.log('✅ Database connection established (SSL)');
-      } catch (error) {
-        console.error('❌ Database authentication failed:', error);
-        throw error;
-      }
-
-      // 🔁 STEP 2 — MIGRATION + SYNC
       const skipSync = process.env.SKIP_DB_SYNC === 'true';
 
       if (!skipSync) {
@@ -328,13 +316,17 @@ export const databaseProviders = [
           await migrateUstadClassAssignments(sequelize);
           await sequelize.sync({ alter: true });
           console.log('✅ Database synchronized');
-        } catch (error) {
-          console.error('❌ Sequelize sync error:', error);
+        } catch (error: any) {
+          console.error('❌ Sequelize sync failed:', error);
           throw error;
         }
       } else {
-        console.log('⏭️ Database sync skipped');
+        console.log('⏭️ Database sync skipped (SKIP_DB_SYNC=true)');
       }
+
+      // Verify connection
+      await sequelize.authenticate();
+      console.log('✅ Database connection established successfully');
 
       return sequelize;
     },
