@@ -54,13 +54,13 @@
 const { Pool } = require('pg');
 const bcrypt = require('bcryptjs');
 
-if (!process.env.SERVICE_URI) {
+if (!process.env.DATABASE_URL) {
   throw new Error('DATABASE_URL is not set');
 }
 
 // Database configuration (ENV based)
 const pool = new Pool({
-  connectionString: process.env.SERVICE_URI,
+  connectionString: process.env.DATABASE_URL,
   ssl: process.env.NODE_ENV === 'production'
     ? { rejectUnauthorized: false }
     : false,

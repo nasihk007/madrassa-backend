@@ -1,0 +1,1 @@
+{"version":3,"file":"ustads.providers.js","sourceRoot":"","sources":["../../src/ustads/ustads.providers.ts"],"names":[],"mappings":";;;AAAA,2DAAiD;AACjD,yDAA+C;AAC/C,6EAAkE;AAErD,QAAA,eAAe,GAAG;IAC7B;QACE,OAAO,EAAE,kBAAkB;QAC3B,QAAQ,EAAE,oBAAK;KAChB;IACD;QACE,OAAO,EAAE,iBAAiB;QAC1B,QAAQ,EAAE,kBAAI;KACf;IACD;QACE,OAAO,EAAE,2BAA2B;QACpC,QAAQ,EAAE,qCAAa;KACxB;CACF,CAAC"}

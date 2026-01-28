@@ -1,0 +1,31 @@
+import { Model } from 'sequelize-typescript';
+import { ClassDivision } from './class-division.entity';
+import { AcademicYear } from './academic-year.entity';
+import { Attendance } from './attendance.entity';
+import { ExamResult } from './exam-result.entity';
+import { Prayer } from './prayer.entity';
+import { Parent } from './parent.entity';
+export declare class Student extends Model<Student> {
+    id: string;
+    userId?: string | null;
+    guardianName?: string | null;
+    guardianPhone?: string | null;
+    name: string;
+    email: string;
+    phone: string;
+    address: string;
+    rollNumber: string;
+    admissionDate: Date;
+    parentId: string;
+    classDivisionId: string;
+    academicYearId: string;
+    createdAt: Date;
+    updatedAt: Date;
+    parent: Parent;
+    isActive?: boolean;
+    classDivision: ClassDivision;
+    academicYear: AcademicYear;
+    attendances: Attendance[];
+    examResults: ExamResult[];
+    prayers: Prayer[];
+}

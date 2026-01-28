@@ -181,8 +181,7 @@
 //     inject: [ConfigService],
 //   },
 // ];
-
-import { Sequelize } from 'sequelize-typescript';
+import { Sequelize, DataType } from 'sequelize-typescript';
 import { ConfigService } from '@nestjs/config';
 
 // Import all entities
@@ -226,7 +225,7 @@ async function migrateUstadClassAssignments(sequelize: Sequelize) {
 
       if (Array.isArray(columns) && columns.length === 0) {
         await queryInterface.addColumn('class_divisions', 'ustad_id', {
-          type: 'UUID',
+          type: DataType.UUID,
           allowNull: true,
           references: {
             model: 'ustads',
@@ -263,14 +262,14 @@ export const databaseProviders = [
   {
     provide: 'SEQUELIZE',
     useFactory: async (configService: ConfigService) => {
-      const databaseUrl = configService.get<string>('SERVICE_URI');
+      const databaseUrl = configService.get<string>('DATABASE_URL');
 
       if (!databaseUrl) {
         throw new Error('❌ DATABASE_URL is not defined');
       }
 
       console.log('📊 Connecting to PostgreSQL using DATABASE_URL');
-      console.log('🔐 SSL enabled (Aiven / Render compatible)');
+      console.log('🔐 SSL enabled (self-signed certificates allowed)');
 
       const sequelize = new Sequelize(databaseUrl, {
         dialect: 'postgres',
@@ -309,8 +308,13 @@ export const databaseProviders = [
         ResultEntrySession,
       ]);
 
+      // 1️⃣ Verify connection first
+      await sequelize.authenticate();
+      console.log('✅ Database connection established successfully');
+
       const skipSync = process.env.SKIP_DB_SYNC === 'true';
 
+      // 2️⃣ Run migration & sync only after successful connection
       if (!skipSync) {
         try {
           await migrateUstadClassAssignments(sequelize);
@@ -323,10 +327,6 @@ export const databaseProviders = [
       } else {
         console.log('⏭️ Database sync skipped (SKIP_DB_SYNC=true)');
       }
-
-      // Verify connection
-      await sequelize.authenticate();
-      console.log('✅ Database connection established successfully');
 
       return sequelize;
     },
