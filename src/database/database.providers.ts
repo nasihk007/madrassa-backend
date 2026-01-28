@@ -263,7 +263,7 @@ export const databaseProviders = [
   {
     provide: 'SEQUELIZE',
     useFactory: async (configService: ConfigService) => {
-      const databaseUrl = configService.get<string>('DATABASE_URL');
+      const databaseUrl = configService.get<string>('Service URI');
 
       if (!databaseUrl) {
         throw new Error('❌ DATABASE_URL is not defined');
