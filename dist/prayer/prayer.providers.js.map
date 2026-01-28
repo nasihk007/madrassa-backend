@@ -1,1 +1,0 @@
-{"version":3,"file":"prayer.providers.js","sourceRoot":"","sources":["../../src/prayer/prayer.providers.ts"],"names":[],"mappings":";;;AAAA,6DAAmD;AACnD,2DAAiD;AAEpC,QAAA,eAAe,GAAG;IAC7B;QACE,OAAO,EAAE,mBAAmB;QAC5B,QAAQ,EAAE,sBAAM;KACjB;IACD;QACE,OAAO,EAAE,kBAAkB;QAC3B,QAAQ,EAAE,oBAAK;KAChB;CACF,CAAC"}
