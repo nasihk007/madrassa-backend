@@ -9,6 +9,7 @@ async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
     app.enableCors({
         origin: [
+            'https://noorulhuda-madrassa-avm.netlify.app',
             'http://localhost:5173',
             'http://localhost:3000',
             'http://127.0.0.1:5173',
