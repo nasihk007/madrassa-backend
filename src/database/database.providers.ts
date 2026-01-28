@@ -111,6 +111,14 @@ export const databaseProviders = [
         password: password,
         database: database,
         logging: false,
+
+        dialectOptions: {
+          ssl: {
+            require: true,
+            rejectUnauthorized: false, // REQUIRED for Aiven + Render
+          },
+        },
+        
         define: {
           timestamps: true,
           freezeTableName: true,
