@@ -11,6 +11,7 @@ async function bootstrap() {
   // Enable CORS
   app.enableCors({
     origin: [
+      'https://noorulhuda-madrassa-avm.netlify.app',
       'http://localhost:5173', // Vite dev server
       'http://localhost:3000', // Alternative dev server
       'http://127.0.0.1:5173', // Alternative localhost
