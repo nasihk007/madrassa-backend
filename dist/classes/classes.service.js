@@ -96,6 +96,9 @@ let ClassesService = class ClassesService {
         return classDivision;
     }
     async create(createClassDto) {
+        if (!createClassDto.ustadId) {
+            createClassDto.ustadId = null;
+        }
         if (createClassDto.ustadId) {
             const ustad = await this.ustadRepository.findByPk(createClassDto.ustadId);
             if (!ustad) {

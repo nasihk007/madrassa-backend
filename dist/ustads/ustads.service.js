@@ -87,6 +87,12 @@ let UstadsService = class UstadsService {
             if (!createUstadDto.name || !createUstadDto.email) {
                 throw new common_1.BadRequestException('Name and email are required when creating a new user');
             }
+            const existingUser = await this.userRepository.findOne({
+                where: { email: createUstadDto.email },
+            });
+            if (existingUser) {
+                throw new common_1.BadRequestException(`A user with email "${createUstadDto.email}" already exists`);
+            }
             const hashedPassword = await bcrypt.hash(createUstadDto.password, 10);
             savedUser = await this.userRepository.create({
                 name: createUstadDto.name,

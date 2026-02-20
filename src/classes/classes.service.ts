@@ -100,6 +100,11 @@ export class ClassesService {
   }
 
   async create(createClassDto: any): Promise<ClassDivision> {
+    // Normalize empty string UUID fields to null
+    if (!createClassDto.ustadId) {
+      createClassDto.ustadId = null;
+    }
+
     // Validate ustad if provided
     if (createClassDto.ustadId) {
       const ustad = await this.ustadRepository.findByPk(createClassDto.ustadId);
