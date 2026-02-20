@@ -3,6 +3,7 @@ import { CommonDataResponseDto } from '../shared/dto/common-data-response.dto';
 import { PageOptionsDto } from '../shared/dto/page-options.dto';
 import { CreatePrayerDto } from './dto/create-prayer.dto';
 import { UpdatePrayerDto } from './dto/update-prayer.dto';
+import { BulkCreatePrayerDto } from './dto/bulk-create-prayer.dto';
 export declare class PrayerController {
     private readonly prayerService;
     constructor(prayerService: PrayerService);
@@ -10,6 +11,7 @@ export declare class PrayerController {
     findByStudent(studentId: string, pageOptionsDto: PageOptionsDto): Promise<CommonDataResponseDto>;
     findOne(id: string): Promise<CommonDataResponseDto>;
     create(createPrayerDto: CreatePrayerDto): Promise<CommonDataResponseDto>;
+    bulkUpsert(bulkCreateDto: BulkCreatePrayerDto, req: any): Promise<CommonDataResponseDto>;
     update(id: string, updatePrayerDto: UpdatePrayerDto): Promise<CommonDataResponseDto>;
     remove(id: string): Promise<CommonDataResponseDto>;
 }

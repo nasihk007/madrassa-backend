@@ -21,6 +21,7 @@ const common_data_response_dto_1 = require("../shared/dto/common-data-response.d
 const page_options_dto_1 = require("../shared/dto/page-options.dto");
 const create_prayer_dto_1 = require("./dto/create-prayer.dto");
 const update_prayer_dto_1 = require("./dto/update-prayer.dto");
+const bulk_create_prayer_dto_1 = require("./dto/bulk-create-prayer.dto");
 let PrayerController = class PrayerController {
     constructor(prayerService) {
         this.prayerService = prayerService;
@@ -39,6 +40,10 @@ let PrayerController = class PrayerController {
     async create(createPrayerDto) {
         const result = await this.prayerService.create(createPrayerDto);
         return new common_data_response_dto_1.CommonDataResponseDto(result, true, 'Prayer record created successfully');
+    }
+    async bulkUpsert(bulkCreateDto, req) {
+        const result = await this.prayerService.bulkUpsert(bulkCreateDto.records, req.user?.id);
+        return new common_data_response_dto_1.CommonDataResponseDto(result, true, 'Bulk prayer records saved successfully');
     }
     async update(id, updatePrayerDto) {
         const result = await this.prayerService.update(id, updatePrayerDto);
@@ -90,6 +95,17 @@ __decorate([
     __metadata("design:paramtypes", [create_prayer_dto_1.CreatePrayerDto]),
     __metadata("design:returntype", Promise)
 ], PrayerController.prototype, "create", null);
+__decorate([
+    (0, swagger_1.ApiOperation)({ summary: 'Bulk create or update prayer records' }),
+    (0, swagger_1.ApiBody)({ type: bulk_create_prayer_dto_1.BulkCreatePrayerDto }),
+    (0, swagger_1.ApiResponse)({ status: 201, description: 'Bulk prayer records saved successfully' }),
+    (0, common_1.Post)('bulk'),
+    __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [bulk_create_prayer_dto_1.BulkCreatePrayerDto, Object]),
+    __metadata("design:returntype", Promise)
+], PrayerController.prototype, "bulkUpsert", null);
 __decorate([
     (0, swagger_1.ApiOperation)({ summary: 'Update prayer record by ID' }),
     (0, swagger_1.ApiParam)({ name: 'id', description: 'Prayer record ID' }),

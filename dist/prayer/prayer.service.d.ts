@@ -14,5 +14,6 @@ export declare class PrayerService {
     findByStudent(studentId: string, pageOptionsDto?: PageOptionsDto): Promise<Prayer[]>;
     create(createPrayerDto: CreatePrayerDto): Promise<Prayer>;
     update(id: string, updatePrayerDto: UpdatePrayerDto): Promise<Prayer>;
+    bulkUpsert(records: CreatePrayerDto[], userId?: string): Promise<Prayer[]>;
     remove(id: string): Promise<void>;
 }
