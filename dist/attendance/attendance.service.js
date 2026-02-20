@@ -170,6 +170,41 @@ let AttendanceService = class AttendanceService {
         await attendance.update(updateData);
         return attendance;
     }
+    async bulkUpsert(records, userId) {
+        let resolvedMarkedById;
+        if (userId) {
+            const ustad = await this.ustadsService.getUstadByUserId(userId);
+            if (ustad) {
+                resolvedMarkedById = ustad.id;
+            }
+        }
+        const results = [];
+        for (const record of records) {
+            const markedById = record.markedById || resolvedMarkedById;
+            const date = new Date(record.date);
+            const existing = await this.attendanceRepository.findOne({
+                where: { studentId: record.studentId, date },
+            });
+            const data = {
+                studentId: record.studentId,
+                date,
+                status: record.status,
+                markedById,
+                academicYearId: record.academicYearId,
+                notes: record.notes,
+            };
+            const cleanData = Object.fromEntries(Object.entries(data).filter(([_, v]) => v !== undefined));
+            if (existing) {
+                await existing.update(cleanData);
+                results.push(existing);
+            }
+            else {
+                const created = await this.attendanceRepository.create(cleanData);
+                results.push(created);
+            }
+        }
+        return results;
+    }
     async remove(id) {
         const attendance = await this.findOne(id);
         await attendance.destroy();

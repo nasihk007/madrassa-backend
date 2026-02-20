@@ -203,6 +203,53 @@ export class AttendanceService {
     return attendance;
   }
 
+  async bulkUpsert(records: CreateAttendanceDto[], userId?: string): Promise<Attendance[]> {
+    // Resolve the ustad markedById from the caller's userId once (same for all records)
+    let resolvedMarkedById: string | undefined;
+    if (userId) {
+      const ustad = await this.ustadsService.getUstadByUserId(userId);
+      if (ustad) {
+        resolvedMarkedById = ustad.id;
+      }
+    }
+
+    const results: Attendance[] = [];
+
+    for (const record of records) {
+      const markedById = record.markedById || resolvedMarkedById;
+      const date = new Date(record.date);
+
+      // Check if a record already exists for this student on this date
+      const existing = await this.attendanceRepository.findOne({
+        where: { studentId: record.studentId, date },
+      });
+
+      const data: any = {
+        studentId: record.studentId,
+        date,
+        status: record.status,
+        markedById,
+        academicYearId: record.academicYearId,
+        notes: record.notes,
+      };
+
+      // Remove undefined values
+      const cleanData = Object.fromEntries(
+        Object.entries(data).filter(([_, v]) => v !== undefined),
+      );
+
+      if (existing) {
+        await existing.update(cleanData);
+        results.push(existing);
+      } else {
+        const created = await this.attendanceRepository.create(cleanData);
+        results.push(created);
+      }
+    }
+
+    return results;
+  }
+
   async remove(id: string): Promise<void> {
     const attendance = await this.findOne(id);
     await attendance.destroy();

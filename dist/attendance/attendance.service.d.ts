@@ -19,5 +19,6 @@ export declare class AttendanceService {
     findByDate(date: string): Promise<Attendance[]>;
     create(createAttendanceDto: CreateAttendanceDto): Promise<Attendance>;
     update(id: string, updateAttendanceDto: UpdateAttendanceDto): Promise<Attendance>;
+    bulkUpsert(records: CreateAttendanceDto[], userId?: string): Promise<Attendance[]>;
     remove(id: string): Promise<void>;
 }

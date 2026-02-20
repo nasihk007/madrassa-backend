@@ -21,6 +21,7 @@ const common_data_response_dto_1 = require("../shared/dto/common-data-response.d
 const page_options_dto_1 = require("../shared/dto/page-options.dto");
 const create_attendance_dto_1 = require("./dto/create-attendance.dto");
 const update_attendance_dto_1 = require("./dto/update-attendance.dto");
+const bulk_create_attendance_dto_1 = require("./dto/bulk-create-attendance.dto");
 let AttendanceController = class AttendanceController {
     constructor(attendanceService) {
         this.attendanceService = attendanceService;
@@ -43,6 +44,10 @@ let AttendanceController = class AttendanceController {
     async create(createAttendanceDto) {
         const result = await this.attendanceService.create(createAttendanceDto);
         return new common_data_response_dto_1.CommonDataResponseDto(result, true, 'Attendance record created successfully');
+    }
+    async bulkUpsert(bulkCreateDto, req) {
+        const result = await this.attendanceService.bulkUpsert(bulkCreateDto.records, req.user?.id);
+        return new common_data_response_dto_1.CommonDataResponseDto(result, true, 'Bulk attendance saved successfully');
     }
     async update(id, updateAttendanceDto) {
         const result = await this.attendanceService.update(id, updateAttendanceDto);
@@ -101,6 +106,17 @@ __decorate([
     __metadata("design:paramtypes", [create_attendance_dto_1.CreateAttendanceDto]),
     __metadata("design:returntype", Promise)
 ], AttendanceController.prototype, "create", null);
+__decorate([
+    (0, swagger_1.ApiOperation)({ summary: 'Bulk create or update attendance records' }),
+    (0, swagger_1.ApiBody)({ type: bulk_create_attendance_dto_1.BulkCreateAttendanceDto }),
+    (0, swagger_1.ApiResponse)({ status: 201, description: 'Bulk attendance saved successfully' }),
+    (0, common_1.Post)('bulk'),
+    __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [bulk_create_attendance_dto_1.BulkCreateAttendanceDto, Object]),
+    __metadata("design:returntype", Promise)
+], AttendanceController.prototype, "bulkUpsert", null);
 __decorate([
     (0, swagger_1.ApiOperation)({ summary: 'Update attendance record by ID' }),
     (0, swagger_1.ApiParam)({ name: 'id', description: 'Attendance record ID' }),

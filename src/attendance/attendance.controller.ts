@@ -6,6 +6,7 @@ import { CommonDataResponseDto } from '../shared/dto/common-data-response.dto';
 import { PageOptionsDto } from '../shared/dto/page-options.dto';
 import { CreateAttendanceDto } from './dto/create-attendance.dto';
 import { UpdateAttendanceDto } from './dto/update-attendance.dto';
+import { BulkCreateAttendanceDto } from './dto/bulk-create-attendance.dto';
 
 @ApiTags('attendance')
 @ApiBearerAuth('JWT-auth')
@@ -51,6 +52,15 @@ export class AttendanceController {
   async create(@Body() createAttendanceDto: CreateAttendanceDto) {
     const result = await this.attendanceService.create(createAttendanceDto);
     return new CommonDataResponseDto(result, true, 'Attendance record created successfully');
+  }
+
+  @ApiOperation({ summary: 'Bulk create or update attendance records' })
+  @ApiBody({ type: BulkCreateAttendanceDto })
+  @ApiResponse({ status: 201, description: 'Bulk attendance saved successfully' })
+  @Post('bulk')
+  async bulkUpsert(@Body() bulkCreateDto: BulkCreateAttendanceDto, @Request() req) {
+    const result = await this.attendanceService.bulkUpsert(bulkCreateDto.records, req.user?.id);
+    return new CommonDataResponseDto(result, true, 'Bulk attendance saved successfully');
   }
 
   @ApiOperation({ summary: 'Update attendance record by ID' })
